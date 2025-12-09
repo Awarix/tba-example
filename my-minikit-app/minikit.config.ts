@@ -14,9 +14,6 @@ export const minikitConfig = {
     payload: "",
     signature: "",
   },
-  baseBuilder: {
-    ownerAddress: "0x1657beB181662B26494D95cADF2232Ae9a1cd8d0",
-  },
   miniapp: {
     version: "1",
     name: "my-minikit-app",
@@ -35,5 +32,8 @@ export const minikitConfig = {
     ogTitle: "",
     ogDescription: "",
     ogImageUrl: `${ROOT_URL}/hero.png`,
+  },
+  baseBuilder: {
+    ownerAddress: "0x1657beB181662B26494D95cADF2232Ae9a1cd8d0",
   },
 } as const;
