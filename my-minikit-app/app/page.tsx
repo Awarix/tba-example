@@ -7,6 +7,9 @@ import {
   useQuickAuth,
   useComposeCast,
   useOpenUrl,
+  useIsInMiniApp,
+  useViewProfile,
+  useAuthenticate,
 } from "@coinbase/onchainkit/minikit";
 import {
   Identity,
@@ -44,8 +47,8 @@ const USDC: Token = {
 export default function Home() {
   const [activeTest, setActiveTest] = useState<string | null>(null);
 
-  // MiniKit core hook
-  const { setMiniAppReady, isMiniAppReady, context } = useMiniKit();
+  // MiniKit core hook - setFrameReady signals the host app we're ready
+  const { setFrameReady, isFrameReady, context } = useMiniKit();
 
   // QuickAuth hook for verified authentication
   const {
@@ -62,14 +65,24 @@ export default function Home() {
   // Open URL hook
   const openUrl = useOpenUrl();
 
+  // Check if in Mini App environment
+  const { isInMiniApp } = useIsInMiniApp();
+
+  // View Profile hook
+  const viewProfile = useViewProfile();
+
+  // useAuthenticate hook (alternative to QuickAuth)
+  const { signIn } = useAuthenticate();
+
   // Wallet account
   const { address, isConnected } = useAccount();
 
+  // Signal frame ready to the host application
   useEffect(() => {
-    if (!isMiniAppReady) {
-      setMiniAppReady();
+    if (!isFrameReady) {
+      setFrameReady();
     }
-  }, [setMiniAppReady, isMiniAppReady]);
+  }, [setFrameReady, isFrameReady]);
 
   // Test handlers
   const handleShareTest = () => {
@@ -223,6 +236,46 @@ export default function Home() {
             </div>
           </section>
 
+          {/* 4b. View Profile */}
+          <section className={styles.testCard}>
+            <h2 className={styles.cardTitle}>👁️ View Profile</h2>
+            <div className={styles.cardContent}>
+              <p>Test viewing a Farcaster profile (FID: 3).</p>
+              <button
+                className={styles.testButton}
+                onClick={() => viewProfile(3)}
+              >
+                View @dwr Profile
+              </button>
+              <div className={styles.statusBadge}>
+                {isInMiniApp ? "✅ Ready in Mini App" : "⏳ Needs Mini App"}
+              </div>
+            </div>
+          </section>
+
+          {/* 4c. useAuthenticate (signIn) */}
+          <section className={styles.testCard}>
+            <h2 className={styles.cardTitle}>🔑 useAuthenticate</h2>
+            <div className={styles.cardContent}>
+              <p>Test Sign In with Farcaster flow.</p>
+              <button
+                className={styles.testButton}
+                onClick={async () => {
+                  const result = await signIn();
+                  if (result) {
+                    console.log("Signed in:", result);
+                    alert(`Signed in successfully! Check console for details.`);
+                  }
+                }}
+              >
+                Sign In with Farcaster
+              </button>
+              <div className={styles.statusBadge}>
+                {isInMiniApp ? "✅ Ready in Mini App" : "⏳ Needs Mini App"}
+              </div>
+            </div>
+          </section>
+
           {/* 5. Wallet */}
           <section className={styles.testCard}>
             <h2 className={styles.cardTitle}>💳 Wallet</h2>
@@ -282,34 +335,40 @@ export default function Home() {
         </div>
 
         {/* Client Info */}
-        {context?.client && (
-          <section className={styles.clientInfo}>
-            <h3>Client Info</h3>
-            <p>
-              <strong>Client FID:</strong> {context.client.clientFid}
-            </p>
-            <p>
-              <strong>Is Base App:</strong>{" "}
-              {context.client.clientFid === 309857 ? "Yes ✅" : "No"}
-            </p>
-            <p>
-              <strong>App Saved:</strong> {context.client.added ? "Yes" : "No"}
-            </p>
-          </section>
-        )}
+        <section className={styles.clientInfo}>
+          <h3>Client Info</h3>
+          <p>
+            <strong>isInMiniApp:</strong> {isInMiniApp ? "Yes ✅" : "No"}
+          </p>
+          {context?.client && (
+            <>
+              <p>
+                <strong>Client FID:</strong> {context.client.clientFid}
+              </p>
+              <p>
+                <strong>Is Base App:</strong>{" "}
+                {String(context.client.clientFid) === "309857" ? "Yes ✅" : "No"}
+              </p>
+              <p>
+                <strong>App Saved:</strong> {context.client.added ? "Yes" : "No"}
+              </p>
+            </>
+          )}
+        </section>
 
         {/* Overall Status */}
         <section className={styles.statusOverview}>
           <h3>Test Summary</h3>
           <ul className={styles.statusList}>
-            <li>
-              User Context: {context?.user ? "✅" : "⏳"} (requires Mini App)
-            </li>
+            <li>isInMiniApp: {isInMiniApp ? "✅" : "⏳"}</li>
+            <li>User Context: {context?.user ? "✅" : "⏳"}</li>
             <li>QuickAuth: {authData?.userFid ? "✅" : "⏳"}</li>
-            <li>composeCast: {context ? "✅" : "⏳"}</li>
-            <li>openUrl: {context ? "✅" : "⏳"}</li>
+            <li>useAuthenticate: {isInMiniApp ? "✅" : "⏳"}</li>
+            <li>composeCast: {isInMiniApp ? "✅" : "⏳"}</li>
+            <li>openUrl: {isInMiniApp ? "✅" : "⏳"}</li>
+            <li>viewProfile: {isInMiniApp ? "✅" : "⏳"}</li>
             <li>Wallet: {isConnected ? "✅" : "⏳"}</li>
-            <li>Swap: {isConnected ? "✅" : "⏳"} (needs wallet)</li>
+            <li>Swap: {isConnected ? "✅" : "⏳"}</li>
           </ul>
         </section>
       </div>
