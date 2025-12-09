@@ -22,57 +22,74 @@ export default function PortfolioPage() {
   const pnlFormatted = formatPnl(totalPnl);
 
   return (
-    <div className="flex flex-col gap-4 p-4 pb-20 max-w-lg mx-auto">
-      {/* Account overview */}
-      <Card variant="elevated">
-        <CardHeader>
-          <CardTitle>Portfolio Overview</CardTitle>
-        </CardHeader>
-
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <p className="text-sm text-text-secondary">Account Value</p>
-            <p className="text-2xl font-mono font-bold text-text-primary">
-              {formatUsd(marginInfo.accountValue)}
-            </p>
-          </div>
-          <div>
-            <p className="text-sm text-text-secondary">Unrealized PnL</p>
-            <p
-              className={`text-2xl font-mono font-bold ${
-                pnlFormatted.isPositive
-                  ? "text-long"
-                  : pnlFormatted.isNegative
-                    ? "text-short"
-                    : "text-text-primary"
-              }`}
-            >
-              {pnlFormatted.value}
-            </p>
-          </div>
+    <div className="min-h-screen pb-24">
+      <div className="max-w-7xl mx-auto px-4 py-6">
+        {/* Page title */}
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold text-text-primary mb-2">Portfolio</h1>
+          <p className="text-text-secondary">Monitor your positions and account performance</p>
         </div>
 
-        <div className="mt-4 pt-4 border-t border-border grid grid-cols-2 gap-4">
-          <div>
-            <p className="text-xs text-text-muted">Margin Used</p>
-            <p className="font-mono text-text-primary">
-              {formatUsd(marginInfo.totalMarginUsed)}
-            </p>
+        {/* Two-column layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left column: Account overview & Balances */}
+          <div className="lg:col-span-1 space-y-6">
+            {/* Account overview */}
+            <Card variant="elevated">
+              <CardHeader>
+                <CardTitle>Account Overview</CardTitle>
+              </CardHeader>
+
+              <div className="space-y-4">
+                <div>
+                  <p className="text-xs text-text-muted uppercase tracking-wider mb-1">Account Value</p>
+                  <p className="text-3xl font-mono font-bold text-text-primary">
+                    {formatUsd(marginInfo.accountValue)}
+                  </p>
+                </div>
+                
+                <div>
+                  <p className="text-xs text-text-muted uppercase tracking-wider mb-1">Unrealized PnL</p>
+                  <p
+                    className={`text-3xl font-mono font-bold ${
+                      pnlFormatted.isPositive
+                        ? "text-long"
+                        : pnlFormatted.isNegative
+                          ? "text-short"
+                          : "text-text-primary"
+                    }`}
+                  >
+                    {pnlFormatted.value}
+                  </p>
+                </div>
+
+                <div className="pt-4 border-t border-surface-elevated space-y-3">
+                  <div className="flex justify-between items-center">
+                    <p className="text-sm text-text-muted">Margin Used</p>
+                    <p className="font-mono font-semibold text-text-primary">
+                      {formatUsd(marginInfo.totalMarginUsed)}
+                    </p>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <p className="text-sm text-text-muted">Available</p>
+                    <p className="font-mono font-semibold text-long">
+                      {formatUsd(marginInfo.availableBalance)}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </Card>
+
+            {/* Balances */}
+            <BalanceDisplay />
           </div>
-          <div>
-            <p className="text-xs text-text-muted">Available</p>
-            <p className="font-mono text-text-primary">
-              {formatUsd(marginInfo.availableBalance)}
-            </p>
+
+          {/* Right column: Positions */}
+          <div className="lg:col-span-2">
+            <PositionsView />
           </div>
         </div>
-      </Card>
-
-      {/* Balances */}
-      <BalanceDisplay />
-
-      {/* Positions */}
-      <PositionsView />
+      </div>
     </div>
   );
 }

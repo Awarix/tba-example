@@ -4,6 +4,7 @@
 
 The core architecture and UI components for HypApp are implemented and building successfully.
 Real-time data (WebSockets) has been added for prices and order book.
+**All pages redesigned with professional, modern layouts and excellent UX.**
 
 ## Completed
 
@@ -18,21 +19,25 @@ Real-time data (WebSockets) has been added for prices and order book.
 - `@nktkas/hyperliquid` SDK integration
 - `InfoClient` for read operations (mids, meta, clearinghouse state)
 - `ExchangeClient` wrapper with wallet adapter for signing
-- `SubscriptionClient` for real-time WebSocket updates
+- `SubscriptionClient` for real-time WebSocket updates with proper type handling
 - Builder fee configuration in orders
 - Utility functions for parsing positions/orders
+- **Fixed RTK Query WebSocket type mismatch** (extracts `mids` object from SDK response)
 
 ### Components
-- Trading UI: Asset selector, market order form with leverage
-- Portfolio: PositionsView with close functionality
-- Funding: DepositFlow UI (placeholder for 1inch/CCTP)
-- Navigation header with OnchainKit Wallet
+- **Trading UI**: Asset selector with sticky header, market order form with leverage, responsive two-column layout
+- **Portfolio**: Enhanced PositionsView with color-coded borders, liquidation warnings, detailed metrics in rounded boxes
+- **Funding**: Redesigned BalanceDisplay with chain indicators and gradient highlighting, improved DepositFlow with status animations
+- **Navigation**: Modern tab-based nav with icons, active state styling, and backdrop blur
+- **Header**: Professional header with gradient logo, connection status indicator, and user profile display
 
 ### Styling
 - Full oklch dark theme with trading-specific colors
 - System monospace font stack
 - Custom animations (pulse-glow, fade-in, slide-up)
-- Mobile-first responsive design
+- **Responsive layouts**: All pages use mobile-first with desktop two-column grids
+- **Professional polish**: Shadow-lg on cards, backdrop-blur effects, gradient accents, hover states
+- **Empty states**: Friendly empty states with icons and helpful messages
 - Explicit `@source` configuration for Tailwind content detection
 
 ## In Progress
@@ -43,6 +48,7 @@ None - MVP foundation complete, ready for testing.
 
 1. **MetaMask SDK Warning**: Build shows warning about `@react-native-async-storage/async-storage` - this is harmless.
 2. **Funding Hooks**: `useFundHL` has placeholder implementations for 1inch Fusion and CCTP.
+3. **Hyperliquid SDK Type Inference**: The `@nktkas/hyperliquid` SDK incorrectly types `allMids().mids` as `string` instead of `{ [coin: string]: string }`. We use type assertion `as unknown as AllMids` to work around this in `hyperliquidApi.ts`.
 
 ## Key Implementation Details
 
@@ -53,10 +59,13 @@ RTK Query's `onCacheEntryAdded` lifecycle method is used to stream updates from 
 onCacheEntryAdded: async (_args, { updateCachedData, cacheDataLoaded, cacheEntryRemoved }) => {
   await cacheDataLoaded;
   const ws = getSubscriptionClient();
-  await ws.allMids((data) => updateCachedData(() => data));
+  // Extract mids object from SDK response { mids: {...}, dex?: ... }
+  await ws.allMids((data) => updateCachedData(() => data.mids));
   await cacheEntryRemoved;
 }
 ```
+
+**Important**: The SDK returns `{ mids: { [coin: string]: string }, dex?: string }`, but we extract just `data.mids` to simplify the cache structure and match what components expect.
 
 ### Wallet Adapter Pattern
 The Hyperliquid SDK requires `signTypedData` for EIP-712 signatures. We wrap wagmi's `WalletClient` in an adapter:

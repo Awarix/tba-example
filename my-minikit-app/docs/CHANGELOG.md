@@ -1,5 +1,36 @@
 # Changelog
 
+## [0.1.7] - 2025-12-09
+
+### Changed
+- **Portfolio & Fund Pages Redesign**: Enhanced both pages with professional layouts matching the trading page
+  - **Portfolio Page**: Two-column layout with account overview & balances on left, positions on right
+  - **Fund Page**: Two-column layout with balances & info on left, deposit flow on right
+  - Page titles with descriptive subtitles
+  - Enhanced PositionsView with larger text, better spacing, color-coded borders, warning badges for liquidation
+  - Redesigned BalanceDisplay with chain indicators, gradient highlights, and hover effects
+  - Improved DepositFlow with status animations, expandable alternative methods, better visual feedback
+  - Empty state improvements with icons and helpful messages
+
+## [0.1.6] - 2025-12-09
+
+### Changed
+- **Professional Layout Upgrade**: Redesigned the trading interface with improved spacing, visual hierarchy, and responsive design
+  - Sticky asset selector at top with backdrop blur
+  - Two-column layout on desktop (order form left, positions right)
+  - Enhanced header with gradient logo, connection status indicator, and improved branding
+  - Modernized navigation with icons, better spacing, and active state styling
+  - Card components now have shadow-lg for depth
+  - Improved overall visual polish with better use of oklch color palette
+
+### Fixed
+- **RTK Query error handling**: Added validation for `allMids` response to prevent empty object returns and improve error logging
+
+## [0.1.5] - 2025-12-09
+
+### Fixed
+- **RTK Query type error**: Fixed `allMids` WebSocket subscription type mismatch by extracting `mids` object from SDK response. The SDK returns `{ mids: {...}, dex?: ... }` but RTK Query cache expects just `{ [coin: string]: string }`. Used type assertion to handle SDK's incorrect type inference for `result.mids`.
+
 ## [0.1.4] - 2025-12-09
 
 ### Added
@@ -8,7 +39,7 @@
 
 ## [0.1.3] - 2025-12-09
 
-### Fixed
+### Not Fixed
 - **Tailwind configuration**: Fixed styles not loading by replacing `postcss.config.mjs` with `postcss.config.js` and adding explicit `@source` directives to `globals.css` to ensure Tailwind 4 correctly detects content files in `components/` and `app/`.
 
 ## [0.1.2] - 2025-12-09
@@ -80,6 +111,6 @@
   - Drizzle trades schema
 
 ### Technical Notes
-- OnchainKit CSS loaded via CDN to avoid Tailwind 4 PostCSS conflicts
+- OnchainKit global CSS is not imported to prevent it from overriding Tailwind v4 layout/styles; Coinbase components use their internal styling plus the app theme.
 - Hyperliquid wallet adapter uses type assertion due to SDK types complexity
 - MetaMask SDK warning is expected (React Native storage not available in web)

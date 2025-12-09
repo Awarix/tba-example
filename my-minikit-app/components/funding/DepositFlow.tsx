@@ -52,45 +52,86 @@ export function DepositFlow() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Deposit to Hyperliquid</CardTitle>
+        <CardTitle className="flex items-center gap-2">
+          <span className="text-2xl">💸</span>
+          Deposit Funds
+        </CardTitle>
       </CardHeader>
 
       {/* Current margin display */}
-      <div className="mb-4 p-3 rounded-lg bg-background">
-        <p className="text-sm text-text-secondary">Current Trading Margin</p>
-        <p className="text-2xl font-mono font-semibold text-text-primary">
+      <div className="mb-6 p-4 rounded-xl bg-gradient-to-br from-accent/5 to-primary/5 border border-accent/20">
+        <p className="text-xs text-text-muted uppercase tracking-wider mb-1">Current Trading Balance</p>
+        <p className="text-3xl font-mono font-bold text-text-primary">
           ${parseFloat(hlPerpMargin).toFixed(2)}
         </p>
       </div>
 
       {/* Amount input */}
-      <div className="mb-4">
+      <div className="mb-6">
         <Input
           type="number"
-          label="Amount (USDC)"
-          placeholder="100"
+          label="Deposit Amount"
+          placeholder="100.00"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
           suffix="USDC"
         />
+        {amount && parseFloat(amount) > 0 && (
+          <p className="mt-2 text-sm text-text-muted">
+            You will receive <span className="font-semibold text-text-primary">${amount}</span> in trading margin
+          </p>
+        )}
       </div>
 
       {/* Status message */}
       {fundingState.step !== "idle" && (
         <div
-          className={`mb-4 p-3 rounded-lg ${
+          className={`mb-6 p-4 rounded-xl border ${
             fundingState.step === "error"
-              ? "bg-error/10 text-error"
+              ? "bg-error/10 border-error/30 text-error"
               : fundingState.step === "complete"
-                ? "bg-success/10 text-success"
-                : "bg-accent/10 text-accent"
+                ? "bg-success/10 border-success/30 text-success"
+                : "bg-accent/10 border-accent/30 text-accent"
           }`}
         >
-          {fundingState.step === "swapping" && "Swapping USDC → USDHL..."}
-          {fundingState.step === "transferring" &&
-            "Transferring to HL wallet..."}
-          {fundingState.step === "complete" && "Deposit complete!"}
-          {fundingState.step === "error" && fundingState.error}
+          <div className="flex items-center gap-3">
+            {fundingState.step === "swapping" && (
+              <>
+                <div className="animate-spin text-xl">⚡</div>
+                <div>
+                  <p className="font-semibold">Swapping funds...</p>
+                  <p className="text-sm opacity-80">Converting USDC → USDHL</p>
+                </div>
+              </>
+            )}
+            {fundingState.step === "transferring" && (
+              <>
+                <div className="animate-pulse text-xl">📤</div>
+                <div>
+                  <p className="font-semibold">Transferring...</p>
+                  <p className="text-sm opacity-80">Sending to HL wallet</p>
+                </div>
+              </>
+            )}
+            {fundingState.step === "complete" && (
+              <>
+                <span className="text-2xl">✅</span>
+                <div>
+                  <p className="font-semibold">Deposit complete!</p>
+                  <p className="text-sm opacity-80">Funds ready for trading</p>
+                </div>
+              </>
+            )}
+            {fundingState.step === "error" && (
+              <>
+                <span className="text-2xl">❌</span>
+                <div>
+                  <p className="font-semibold">Error</p>
+                  <p className="text-sm opacity-80">{fundingState.error}</p>
+                </div>
+              </>
+            )}
+          </div>
         </div>
       )}
 
@@ -124,31 +165,40 @@ export function DepositFlow() {
         </Button>
 
         {/* Manual bridge options */}
-        <div className="pt-3 border-t border-border">
+        <div className="pt-4 border-t border-surface-elevated">
           <button
-            className="text-sm text-text-secondary hover:text-text-primary mb-2 flex items-center gap-1"
+            className="w-full text-sm text-text-secondary hover:text-text-primary mb-3 flex items-center justify-between px-2 py-1 rounded-lg hover:bg-surface-elevated transition-colors"
             onClick={() => setShowManualBridge(!showManualBridge)}
           >
-            {showManualBridge ? "▼" : "▶"} Manual Bridge Options
+            <span className="font-medium">Alternative Funding Methods</span>
+            <span className="text-lg transition-transform" style={{ transform: showManualBridge ? 'rotate(90deg)' : 'rotate(0deg)' }}>▶</span>
           </button>
 
           {showManualBridge && (
-            <div className="space-y-2">
+            <div className="space-y-2 animate-fade-in">
               <Button
                 variant="ghost"
                 size="sm"
-                className="w-full justify-start"
+                className="w-full justify-start hover:bg-surface-elevated"
                 onClick={handleOpenBridge}
               >
-                🌉 Hyperliquid Bridge
+                <span className="text-lg mr-2">🌉</span>
+                <div className="text-left">
+                  <p className="font-medium">Hyperliquid Bridge</p>
+                  <p className="text-xs text-text-muted">Official bridge</p>
+                </div>
               </Button>
               <Button
                 variant="ghost"
                 size="sm"
-                className="w-full justify-start"
+                className="w-full justify-start hover:bg-surface-elevated"
                 onClick={handleOpenHyperUnit}
               >
-                💱 HyperUnit (Fiat → Crypto)
+                <span className="text-lg mr-2">💱</span>
+                <div className="text-left">
+                  <p className="font-medium">HyperUnit</p>
+                  <p className="text-xs text-text-muted">Buy crypto with fiat</p>
+                </div>
               </Button>
             </div>
           )}

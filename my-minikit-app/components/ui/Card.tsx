@@ -11,14 +11,14 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(function Card(
   ref
 ) {
   const variants = {
-    default: "bg-surface border-border",
-    elevated: "bg-surface-elevated border-border",
+    default: "bg-surface border-surface-elevated shadow-lg",
+    elevated: "bg-surface-elevated border-surface shadow-xl",
   };
 
   return (
     <div
       ref={ref}
-      className={`border rounded-xl p-4 ${variants[variant]} ${className}`}
+      className={`border rounded-xl p-6 ${variants[variant]} ${className}`}
       {...props}
     >
       {children}

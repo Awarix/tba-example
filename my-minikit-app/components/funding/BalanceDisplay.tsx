@@ -45,44 +45,66 @@ export function BalanceDisplay() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Balances</CardTitle>
+        <CardTitle>Your Balances</CardTitle>
       </CardHeader>
-      <div className="space-y-4">
+      <div className="space-y-3">
         {/* Base USDC */}
-        <div className="flex justify-between items-center">
-          <div>
-            <p className="text-sm text-text-secondary">Base USDC</p>
-            <p className="text-lg font-mono text-text-primary">
+        <div className="p-4 rounded-xl bg-background border border-surface-elevated hover:border-accent/30 transition-colors">
+          <div className="flex justify-between items-center mb-2">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                <div className="w-3 h-3 rounded-full bg-blue-500" />
+              </div>
+              <div>
+                <p className="text-xs text-text-muted uppercase tracking-wider">Base Chain</p>
+                <p className="text-sm font-semibold text-text-primary">USDC</p>
+              </div>
+            </div>
+            <p className="text-xl font-mono font-bold text-text-primary">
               {formatUsd(balances?.baseUsdc ?? "0")}
             </p>
           </div>
-          <div className="w-2 h-2 rounded-full bg-blue-500" title="Base Chain" />
         </div>
 
         {/* HyperEVM USDHL */}
-        <div className="flex justify-between items-center">
-          <div>
-            <p className="text-sm text-text-secondary">HyperEVM USDHL</p>
-            <p className="text-lg font-mono text-text-primary">
+        <div className="p-4 rounded-xl bg-background border border-surface-elevated hover:border-accent/30 transition-colors">
+          <div className="flex justify-between items-center mb-2">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+                <div className="w-3 h-3 rounded-full bg-emerald-500" />
+              </div>
+              <div>
+                <p className="text-xs text-text-muted uppercase tracking-wider">HyperEVM</p>
+                <p className="text-sm font-semibold text-text-primary">USDHL</p>
+              </div>
+            </div>
+            <p className="text-xl font-mono font-bold text-text-primary">
               {formatUsd(balances?.hyperEvmUsdhl ?? "0")}
             </p>
           </div>
-          <div
-            className="w-2 h-2 rounded-full bg-emerald-500"
-            title="HyperEVM"
-          />
         </div>
 
-        {/* HL Trading Margin */}
-        <div className="flex justify-between items-center pt-3 border-t border-border">
-          <div>
-            <p className="text-sm text-text-secondary">HL Trading Margin</p>
-            <p className="text-xl font-mono font-semibold text-text-primary">
-              {formatUsd(hlPerpMargin)}
-            </p>
-          </div>
-          <div className="px-2 py-0.5 rounded bg-accent text-xs font-medium">
-            READY
+        {/* HL Trading Margin - Highlighted */}
+        <div className="p-4 rounded-xl bg-gradient-to-br from-accent/10 to-primary/10 border-2 border-accent/30">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-accent/20 flex items-center justify-center">
+                <span className="text-lg">🎯</span>
+              </div>
+              <div>
+                <p className="text-xs text-text-muted uppercase tracking-wider">Hyperliquid</p>
+                <p className="text-sm font-semibold text-text-primary">Trading Margin</p>
+              </div>
+            </div>
+            <div className="text-right">
+              <p className="text-2xl font-mono font-bold text-text-primary">
+                {formatUsd(hlPerpMargin)}
+              </p>
+              <div className="flex items-center justify-end gap-1 mt-1">
+                <div className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+                <span className="text-xs font-semibold text-accent uppercase tracking-wider">Ready</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>

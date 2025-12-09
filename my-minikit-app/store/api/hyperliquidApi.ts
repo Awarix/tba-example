@@ -7,7 +7,8 @@ import type { WalletClient } from "viem";
 type InfoClient = ReturnType<typeof getInfoClient>;
 
 // Response types (inferred from SDK)
-export type AllMids = Awaited<ReturnType<InfoClient["allMids"]>>;
+// Note: AllMids extracts just the mids object from the SDK response
+export type AllMids = { [coin: string]: string };
 export type Meta = Awaited<ReturnType<InfoClient["meta"]>>;
 export type SpotMeta = Awaited<ReturnType<InfoClient["spotMeta"]>>;
 export type ClearinghouseState = Awaited<ReturnType<InfoClient["clearinghouseState"]>>;
@@ -60,9 +61,21 @@ export const hyperliquidApi = createApi({
       queryFn: async () => {
         try {
           const info = getInfoClient();
-          const data = await info.allMids();
-          return { data };
+          const result = await info.allMids();
+          
+          // Extract just the mids object for simpler cache structure
+          // SDK types result.mids as string, but it's actually { [coin: string]: string }
+          const midsData = result.mids as unknown as AllMids;
+          
+          // Validate we got data
+          if (!midsData || typeof midsData !== 'object') {
+            console.error('Invalid mids data received:', result);
+            return { data: {} as AllMids };
+          }
+          
+          return { data: midsData };
         } catch (error) {
+          console.error('allMids query error:', error);
           return { error: { message: String(error) } };
         }
       },
@@ -84,7 +97,7 @@ export const hyperliquidApi = createApi({
           // The SDK returns a subscription object with an unsubscribe method
           subscription = await ws.allMids((data) => {
             if (active) {
-              updateCachedData(() => data);
+              updateCachedData(() => data.mids);
             }
           });
         } catch (error) {

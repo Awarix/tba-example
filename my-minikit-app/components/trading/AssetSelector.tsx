@@ -53,16 +53,19 @@ export function AssetSelector({
       {/* Selected asset display / trigger */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between p-3 bg-surface border border-border rounded-lg hover:border-accent transition-colors"
+        className="w-full flex items-center justify-between px-4 py-3 bg-surface-elevated border border-surface rounded-xl hover:border-accent transition-all shadow-md hover:shadow-lg"
       >
-        <div className="flex items-center gap-3">
-          <span className="text-xl font-semibold text-text-primary">
+        <div className="flex items-center gap-4">
+          <span className="text-2xl font-bold text-text-primary">
             {selectedAsset ?? "Select Asset"}
           </span>
           {currentPrice && (
-            <span className="text-lg font-mono text-text-secondary">
-              ${formatPrice(currentPrice)}
-            </span>
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-sm text-text-muted">$</span>
+              <span className="text-xl font-mono font-semibold text-text-primary">
+                {formatPrice(currentPrice)}
+              </span>
+            </div>
           )}
         </div>
         <svg
@@ -82,15 +85,15 @@ export function AssetSelector({
 
       {/* Dropdown */}
       {isOpen && (
-        <div className="absolute z-50 w-full mt-2 bg-surface-elevated border border-border rounded-lg shadow-xl overflow-hidden">
+        <div className="absolute z-50 w-full mt-2 bg-surface border border-surface-elevated rounded-xl shadow-2xl overflow-hidden">
           {/* Search */}
-          <div className="p-2 border-b border-border">
+          <div className="p-3 border-b border-surface-elevated">
             <input
               type="text"
               placeholder="Search assets..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full px-3 py-2 bg-background border border-border rounded-lg text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent"
+              className="w-full px-4 py-2.5 bg-background border border-surface-elevated rounded-lg text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent transition-colors"
               autoFocus
             />
           </div>
