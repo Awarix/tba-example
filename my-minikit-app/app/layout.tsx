@@ -32,13 +32,6 @@ export default function RootLayout({
   return (
     <RootProvider>
       <html lang="en">
-        <head>
-          {/* OnchainKit styles loaded via link to bypass Tailwind 4 PostCSS */}
-          <link
-            rel="stylesheet"
-            href="https://unpkg.com/@coinbase/onchainkit@latest/dist/assets/style.css"
-          />
-        </head>
         <body>
           <SafeArea>{children}</SafeArea>
         </body>

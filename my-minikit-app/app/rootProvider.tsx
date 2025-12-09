@@ -3,6 +3,7 @@ import { ReactNode } from "react";
 import { Provider as ReduxProvider } from "react-redux";
 import { base } from "wagmi/chains";
 import { OnchainKitProvider } from "@coinbase/onchainkit";
+import "@coinbase/onchainkit/styles.css";
 import { store } from "@/store/store";
 import { hyperEvm } from "@/lib/chains";
 
