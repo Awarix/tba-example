@@ -324,6 +324,17 @@ export function useHyperliquid() {
     [positions, placeMarketOrder]
   );
 
+  /**
+   * Get asset index by symbol.
+   */
+  const getAssetIndex = useCallback(
+    (symbol: string): number | null => {
+      if (!meta) return null;
+      return findPerpAssetIndex(meta, symbol);
+    },
+    [meta]
+  );
+
   return {
     // Data
     prices,
@@ -346,6 +357,7 @@ export function useHyperliquid() {
 
     // Actions
     getPrice,
+    getAssetIndex,
     placeMarketOrder,
     placeLimitOrder,
     closePosition,

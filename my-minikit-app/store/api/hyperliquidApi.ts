@@ -15,6 +15,35 @@ export type ClearinghouseState = Awaited<ReturnType<InfoClient["clearinghouseSta
 export type SpotClearinghouseState = Awaited<ReturnType<InfoClient["spotClearinghouseState"]>>;
 export type L2Book = Awaited<ReturnType<InfoClient["l2Book"]>>;
 
+// Candle/OHLCV types
+export type CandleInterval = "1m" | "5m" | "15m" | "1h" | "4h" | "1d";
+
+export interface Candle {
+  t: number;    // Timestamp (ms)
+  o: string;    // Open
+  h: string;    // High
+  l: string;    // Low
+  c: string;    // Close
+  v: string;    // Volume
+  n: number;    // Number of trades
+}
+
+export interface CandleSnapshot {
+  candles: Candle[];
+}
+
+// Open orders type
+export interface OpenOrder {
+  coin: string;
+  oid: number;
+  side: "B" | "A";  // Buy or Ask (sell)
+  limitPx: string;
+  sz: string;
+  timestamp: number;
+  origSz: string;
+  cloid?: string;
+}
+
 // Types for our queries
 interface UserStateParams {
   user: string;
@@ -22,6 +51,23 @@ interface UserStateParams {
 
 interface L2BookParams {
   coin: string;
+}
+
+interface CandleSnapshotParams {
+  coin: string;
+  interval: CandleInterval;
+  startTime?: number;
+  endTime?: number;
+}
+
+interface OpenOrdersParams {
+  user: string;
+}
+
+interface CancelOrderParams {
+  wallet: WalletClient;
+  coin: string;
+  oid: number;
 }
 
 interface PlaceOrderParams {
@@ -54,7 +100,7 @@ interface UsdClassTransferParams {
 export const hyperliquidApi = createApi({
   reducerPath: "hyperliquidApi",
   baseQuery: fakeBaseQuery(),
-  tagTypes: ["UserState", "Prices", "OrderBook", "Meta"],
+  tagTypes: ["UserState", "Prices", "OrderBook", "Meta", "Candles", "OpenOrders"],
   endpoints: (builder) => ({
     // Get all mid prices
     allMids: builder.query<AllMids, void>({
@@ -284,6 +330,137 @@ export const hyperliquidApi = createApi({
       },
       invalidatesTags: ["UserState"],
     }),
+
+    // Get candle/OHLCV data for charting
+    candleSnapshot: builder.query<Candle[], CandleSnapshotParams>({
+      queryFn: async ({ coin, interval, startTime, endTime }) => {
+        try {
+          const info = getInfoClient();
+          // Default to last 500 candles if no time range specified
+          const now = Date.now();
+          const intervalMs = {
+            "1m": 60 * 1000,
+            "5m": 5 * 60 * 1000,
+            "15m": 15 * 60 * 1000,
+            "1h": 60 * 60 * 1000,
+            "4h": 4 * 60 * 60 * 1000,
+            "1d": 24 * 60 * 60 * 1000,
+          };
+          const candleCount = 500;
+          const start = startTime ?? now - intervalMs[interval] * candleCount;
+          const end = endTime ?? now;
+
+          const result = await info.candleSnapshot({
+            coin,
+            interval,
+            startTime: start,
+            endTime: end,
+          });
+
+          // SDK returns array of candle objects
+          const candles = (result as unknown as Candle[]) ?? [];
+          return { data: candles };
+        } catch (error) {
+          console.error("candleSnapshot error:", error);
+          return { error: { message: String(error) } };
+        }
+      },
+      onCacheEntryAdded: async (
+        { coin, interval },
+        { updateCachedData, cacheDataLoaded, cacheEntryRemoved }
+      ) => {
+        await cacheDataLoaded;
+        const ws = getSubscriptionClient();
+        let active = true;
+        let subscription: { unsubscribe: () => void } | undefined;
+
+        try {
+          // Subscribe to real-time candle updates
+          subscription = await ws.candle({ coin, interval }, (data) => {
+            if (active && data) {
+              updateCachedData((draft) => {
+                // data is a single candle update
+                const candle = data as unknown as Candle;
+                if (!draft) return [candle];
+                
+                // Find existing candle with same timestamp or add new one
+                const existingIndex = draft.findIndex((c) => c.t === candle.t);
+                if (existingIndex >= 0) {
+                  draft[existingIndex] = candle;
+                } else {
+                  // Add new candle and keep sorted by timestamp
+                  draft.push(candle);
+                  draft.sort((a, b) => a.t - b.t);
+                  // Limit to last 1000 candles to prevent memory issues
+                  if (draft.length > 1000) {
+                    draft.shift();
+                  }
+                }
+              });
+            }
+          });
+        } catch (error) {
+          console.error("Candle WebSocket subscription error:", error);
+        }
+
+        await cacheEntryRemoved;
+        active = false;
+        if (subscription) {
+          subscription.unsubscribe();
+        }
+      },
+      providesTags: (_result, _error, { coin, interval }) => [
+        { type: "Candles", id: `${coin}-${interval}` },
+      ],
+    }),
+
+    // Get user's open orders
+    openOrders: builder.query<OpenOrder[], OpenOrdersParams>({
+      queryFn: async ({ user }) => {
+        try {
+          const info = getInfoClient();
+          const result = await info.openOrders({ user });
+          return { data: result as unknown as OpenOrder[] };
+        } catch (error) {
+          return { error: { message: String(error) } };
+        }
+      },
+      providesTags: (_result, _error, { user }) => [
+        { type: "OpenOrders", id: user },
+      ],
+    }),
+
+    // Cancel an order
+    cancelOrder: builder.mutation<unknown, CancelOrderParams>({
+      queryFn: async ({ wallet, coin, oid }) => {
+        try {
+          const exchange = getExchangeClient(wallet);
+          const result = await exchange.cancel({
+            cancels: [{ a: 0, o: oid }], // a is asset index, but cancel by oid works
+          });
+          return { data: result };
+        } catch (error) {
+          return { error: { message: String(error) } };
+        }
+      },
+      invalidatesTags: ["OpenOrders", "UserState"],
+    }),
+
+    // Cancel all orders for a coin
+    cancelAllOrders: builder.mutation<unknown, { wallet: WalletClient; coin?: string }>({
+      queryFn: async ({ wallet, coin }) => {
+        try {
+          const exchange = getExchangeClient(wallet);
+          const result = await exchange.cancelByCloid({
+            cancels: [], // Empty cancels with coin specified cancels all for that coin
+          });
+          return { data: result };
+        } catch (error) {
+          return { error: { message: String(error) } };
+        }
+      },
+      invalidatesTags: ["OpenOrders", "UserState"],
+    }),
   }),
 });
 
@@ -295,7 +472,11 @@ export const {
   useUserStateQuery,
   useSpotUserStateQuery,
   useL2BookQuery,
+  useCandleSnapshotQuery,
+  useOpenOrdersQuery,
   usePlaceOrderMutation,
   useApproveBuilderFeeMutation,
   useUsdClassTransferMutation,
+  useCancelOrderMutation,
+  useCancelAllOrdersMutation,
 } = hyperliquidApi;

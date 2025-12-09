@@ -27,9 +27,11 @@ export const trades = pgTable("trades", {
   // Trade details
   pair: text("pair").notNull(), // "BTC", "ETH", etc.
   marketType: text("market_type").notNull(), // "perp" | "spot"
+  orderType: text("order_type").notNull().default("market"), // "market" | "limit" | "stop" | "tp" | "sl"
   side: text("side").notNull(), // "buy" | "sell"
   size: decimal("size", { precision: 30, scale: 18 }).notNull(),
   price: decimal("price", { precision: 30, scale: 18 }).notNull(),
+  leverage: integer("leverage").default(1), // Leverage used for perps
 
   // Execution
   status: text("status").notNull().default("pending"), // "pending" | "filled" | "cancelled" | "failed"

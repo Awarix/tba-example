@@ -1,5 +1,68 @@
 # Changelog
 
+## [0.2.0] - 2025-12-09
+
+### Added
+- **Phase 2A: Trading Core Implementation**
+  - **TradingView Candlestick Chart** using lightweight-charts v5
+    - Full-width responsive chart (~45vh on mobile)
+    - Multiple timeframes: 1m, 5m, 15m, 1H, 4H, 1D
+    - Real-time candle updates via WebSocket
+    - Volume histogram overlay
+    - Drawing tools sidebar (cursor, trend line, horizontal line, rectangle, fibonacci, measure)
+    - Click-to-set limit price functionality
+    - Draggable TP/SL price lines
+  - **Order Book Component** with bid/ask depth visualization
+    - Real-time updates via WebSocket
+    - Horizontal depth bars showing cumulative volume
+    - Click price level to set limit order
+    - Spread indicator
+  - **Advanced Order Types**
+    - Limit orders (Good-til-Cancelled)
+    - Stop orders
+    - Take Profit / Stop Loss integration
+  - **Trade Persistence API**
+    - `/api/trades` route with POST, GET, PATCH methods
+    - Zod validation for all inputs
+    - Order type and leverage tracking
+  - **New Trading Components**
+    - `TradingChart.tsx` - Candlestick chart wrapper
+    - `ChartHeader.tsx` - Compact asset/price display
+    - `IntervalPills.tsx` - Timeframe selector
+    - `ChartToolbar.tsx` - Drawing tools sidebar
+    - `OrderBook.tsx` - Bid/ask depth visualization
+    - `OrderForm.tsx` - Full-featured inline order form
+    - `OrderSheet.tsx` - Bottom sheet order form for mobile
+    - `OpenOrders.tsx` - Open orders list with cancel
+    - `TradeHistory.tsx` - Executed trades list
+    - `TradeTabs.tsx` - Tabbed container for data sections
+    - `StickyTradeBar.tsx` - Fixed Long/Short buttons
+
+### Changed
+- **Mobile-First Trade Page Layout** (DEXScreener-inspired)
+  - Vertical stacking instead of side-by-side columns
+  - Full-width chart at top of screen
+  - Tabbed sections below chart (Book, Orders, History)
+  - Sticky Long/Short buttons above navigation
+  - Bottom sheet order form (slides up on tap)
+  - Asset selector as modal overlay
+- **Database Schema Update**
+  - Added `orderType` field: market | limit | stop | tp | sl
+  - Added `leverage` field for perp trades
+- **RTK Query API Expansion**
+  - Added `candleSnapshot` query with WebSocket streaming
+  - Added `openOrders` query
+  - Added `cancelOrder` mutation
+  - Added `cancelAllOrders` mutation
+
+### Removed
+- Deleted obsolete `AssetSelectorModal.tsx` and `InteractiveChart.tsx`
+
+### Technical Notes
+- Using lightweight-charts v5 API: `chart.addSeries(CandlestickSeries, options)`
+- Chart requires dynamic import with SSR disabled
+- Drawing tools state managed locally (not persisted)
+
 ## [0.1.7] - 2025-12-09
 
 ### Changed
