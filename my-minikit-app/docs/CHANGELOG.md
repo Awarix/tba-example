@@ -1,9 +1,20 @@
 # Changelog
 
+## [0.1.4] - 2025-12-09
+
+### Added
+- **Real-time Data**: Implemented WebSocket subscriptions for `allMids` (prices) and `l2Book` (order book) using `@nktkas/hyperliquid` `SubscriptionClient`.
+- Integrated `SubscriptionClient` into RTK Query via `onCacheEntryAdded` for efficient state updates.
+
+## [0.1.3] - 2025-12-09
+
+### Fixed
+- **Tailwind configuration**: Fixed styles not loading by replacing `postcss.config.mjs` with `postcss.config.js` and adding explicit `@source` directives to `globals.css` to ensure Tailwind 4 correctly detects content files in `components/` and `app/`.
+
 ## [0.1.2] - 2025-12-09
 
 ### Fixed
-- **Tailwind v4 styling issue**: Converted all `bg-[var(--color-*)]` arbitrary value syntax to proper Tailwind v4 utility classes like `bg-surface`, `text-text-primary`, etc.
+- **Tailwind v4 styling issue**: Converted all arbitrary CSS variable syntax to proper Tailwind v4 utility classes like `bg-surface`, `text-text-primary`, etc.
 - In Tailwind v4, when you define `--color-surface` in `@theme`, it creates `bg-surface` utility class automatically
 - All components now use native Tailwind v4 color utilities instead of CSS variable arbitrary values
 
@@ -72,4 +83,3 @@
 - OnchainKit CSS loaded via CDN to avoid Tailwind 4 PostCSS conflicts
 - Hyperliquid wallet adapter uses type assertion due to SDK types complexity
 - MetaMask SDK warning is expected (React Native storage not available in web)
-

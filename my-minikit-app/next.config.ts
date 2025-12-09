@@ -5,6 +5,9 @@ const nextConfig: NextConfig = {
     config.externals.push("pino-pretty", "lokijs", "encoding");
     return config;
   },
+  images: {
+    domains: ['imgur.com'],
+  },
   // Allow embedding in iframes for Mini Apps (Farcaster/Base App)
   async headers() {
     return [

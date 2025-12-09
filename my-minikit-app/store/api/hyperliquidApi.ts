@@ -1,5 +1,5 @@
 import { createApi, fakeBaseQuery } from "@reduxjs/toolkit/query/react";
-import { getInfoClient, getExchangeClient } from "@/lib/hyperliquid/client";
+import { getInfoClient, getExchangeClient, getSubscriptionClient } from "@/lib/hyperliquid/client";
 import type { WalletClient } from "viem";
 
 // Define our own response types based on the SDK's response types
@@ -64,6 +64,39 @@ export const hyperliquidApi = createApi({
           return { data };
         } catch (error) {
           return { error: { message: String(error) } };
+        }
+      },
+      onCacheEntryAdded: async (
+        _args,
+        { updateCachedData, cacheDataLoaded, cacheEntryRemoved }
+      ) => {
+        // Wait for the initial query to complete
+        await cacheDataLoaded;
+
+        // Create subscription
+        const ws = getSubscriptionClient();
+        
+        // Use a unique ID for this subscription to handle unsubscribe if needed
+        let active = true;
+        let subscription: { unsubscribe: () => void } | undefined;
+
+        try {
+          // The SDK returns a subscription object with an unsubscribe method
+          subscription = await ws.allMids((data) => {
+            if (active) {
+              updateCachedData(() => data);
+            }
+          });
+        } catch (error) {
+          console.error("WebSocket subscription error:", error);
+        }
+
+        // Cleanup when cache entry is removed
+        await cacheEntryRemoved;
+        active = false;
+        
+        if (subscription) {
+          subscription.unsubscribe();
         }
       },
       providesTags: ["Prices"],
@@ -138,6 +171,32 @@ export const hyperliquidApi = createApi({
           return { data };
         } catch (error) {
           return { error: { message: String(error) } };
+        }
+      },
+      onCacheEntryAdded: async (
+        { coin },
+        { updateCachedData, cacheDataLoaded, cacheEntryRemoved }
+      ) => {
+        await cacheDataLoaded;
+        const ws = getSubscriptionClient();
+        let active = true;
+        let subscription: { unsubscribe: () => void } | undefined;
+
+        try {
+          subscription = await ws.l2Book({ coin }, (data) => {
+            if (active) {
+              updateCachedData(() => data);
+            }
+          });
+        } catch (error) {
+          console.error("WebSocket subscription error:", error);
+        }
+
+        await cacheEntryRemoved;
+        active = false;
+        
+        if (subscription) {
+          subscription.unsubscribe();
         }
       },
       providesTags: (_result, _error, { coin }) => [

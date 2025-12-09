@@ -1,7 +1,9 @@
 import {
   InfoClient,
   ExchangeClient,
+  SubscriptionClient,
   HttpTransport,
+  WebSocketTransport,
 } from "@nktkas/hyperliquid";
 import type { WalletClient } from "viem";
 
@@ -12,6 +14,7 @@ import type { WalletClient } from "viem";
 
 // Singleton InfoClient for read operations (no wallet needed)
 let infoClient: InfoClient | null = null;
+let subscriptionClient: SubscriptionClient | null = null;
 
 /**
  * Get the singleton InfoClient for read-only operations.
@@ -27,6 +30,22 @@ export function getInfoClient(): InfoClient {
     });
   }
   return infoClient;
+}
+
+/**
+ * Get the singleton SubscriptionClient for real-time updates.
+ * Creates a new instance if one doesn't exist.
+ */
+export function getSubscriptionClient(): SubscriptionClient {
+  if (!subscriptionClient) {
+    subscriptionClient = new SubscriptionClient({
+      transport: new WebSocketTransport({
+        // Mainnet by default - set NEXT_PUBLIC_HYPERLIQUID_TESTNET=true for testnet
+        isTestnet: process.env.NEXT_PUBLIC_HYPERLIQUID_TESTNET === "true",
+      }),
+    });
+  }
+  return subscriptionClient;
 }
 
 /**
