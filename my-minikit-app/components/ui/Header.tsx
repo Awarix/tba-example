@@ -8,13 +8,11 @@ export function Header() {
   const { context } = useMiniKit();
 
   return (
-    <header className="sticky top-0 z-40 bg-[var(--color-surface)] border-b border-[var(--color-border)]">
+    <header className="sticky top-0 z-40 bg-surface border-b border-border">
       <div className="max-w-lg mx-auto flex items-center justify-between px-4 py-3">
         {/* Logo/Title */}
         <div className="flex items-center gap-2">
-          <span className="text-lg font-bold text-[var(--color-text-primary)]">
-            HypApp
-          </span>
+          <span className="text-lg font-bold text-text-primary">HypApp</span>
         </div>
 
         {/* User info + Wallet */}
@@ -32,7 +30,7 @@ export function Header() {
                   unoptimized
                 />
               )}
-              <span className="text-sm text-[var(--color-text-secondary)] hidden sm:inline">
+              <span className="text-sm text-text-secondary hidden sm:inline">
                 @{context.user.username}
               </span>
             </div>
@@ -45,4 +43,3 @@ export function Header() {
     </header>
   );
 }
-

@@ -22,18 +22,16 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     ref
   ) {
     const baseStyles =
-      "font-semibold rounded-lg transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--color-background)] disabled:opacity-50 disabled:cursor-not-allowed";
+      "font-semibold rounded-lg transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background disabled:opacity-50 disabled:cursor-not-allowed";
 
     const variants = {
-      primary:
-        "bg-[var(--color-accent)] text-white hover:opacity-90 focus:ring-[var(--color-accent)]",
+      primary: "bg-accent text-white hover:opacity-90 focus:ring-accent",
       secondary:
-        "bg-[var(--color-surface-elevated)] text-[var(--color-text-primary)] border border-[var(--color-border)] hover:bg-[var(--color-border)] focus:ring-[var(--color-border)]",
-      long: "bg-[var(--color-long)] text-[var(--color-background)] hover:opacity-90 focus:ring-[var(--color-long)]",
-      short:
-        "bg-[var(--color-short)] text-white hover:opacity-90 focus:ring-[var(--color-short)]",
+        "bg-surface-elevated text-text-primary border border-border hover:bg-border focus:ring-border",
+      long: "bg-long text-background hover:opacity-90 focus:ring-long",
+      short: "bg-short text-white hover:opacity-90 focus:ring-short",
       ghost:
-        "bg-transparent text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface)] focus:ring-[var(--color-border)]",
+        "bg-transparent text-text-secondary hover:text-text-primary hover:bg-surface focus:ring-border",
     };
 
     const sizes = {
@@ -61,4 +59,3 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     );
   }
 );
-

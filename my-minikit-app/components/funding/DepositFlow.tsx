@@ -56,11 +56,9 @@ export function DepositFlow() {
       </CardHeader>
 
       {/* Current margin display */}
-      <div className="mb-4 p-3 rounded-lg bg-[var(--color-background)]">
-        <p className="text-sm text-[var(--color-text-secondary)]">
-          Current Trading Margin
-        </p>
-        <p className="text-2xl font-mono font-semibold text-[var(--color-text-primary)]">
+      <div className="mb-4 p-3 rounded-lg bg-background">
+        <p className="text-sm text-text-secondary">Current Trading Margin</p>
+        <p className="text-2xl font-mono font-semibold text-text-primary">
           ${parseFloat(hlPerpMargin).toFixed(2)}
         </p>
       </div>
@@ -82,10 +80,10 @@ export function DepositFlow() {
         <div
           className={`mb-4 p-3 rounded-lg ${
             fundingState.step === "error"
-              ? "bg-[var(--color-error)]/10 text-[var(--color-error)]"
+              ? "bg-error/10 text-error"
               : fundingState.step === "complete"
-                ? "bg-[var(--color-success)]/10 text-[var(--color-success)]"
-                : "bg-[var(--color-accent)]/10 text-[var(--color-accent)]"
+                ? "bg-success/10 text-success"
+                : "bg-accent/10 text-accent"
           }`}
         >
           {fundingState.step === "swapping" && "Swapping USDC → USDHL..."}
@@ -126,9 +124,9 @@ export function DepositFlow() {
         </Button>
 
         {/* Manual bridge options */}
-        <div className="pt-3 border-t border-[var(--color-border)]">
+        <div className="pt-3 border-t border-border">
           <button
-            className="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] mb-2 flex items-center gap-1"
+            className="text-sm text-text-secondary hover:text-text-primary mb-2 flex items-center gap-1"
             onClick={() => setShowManualBridge(!showManualBridge)}
           >
             {showManualBridge ? "▼" : "▶"} Manual Bridge Options
@@ -166,4 +164,3 @@ export function DepositFlow() {
     </Card>
   );
 }
-

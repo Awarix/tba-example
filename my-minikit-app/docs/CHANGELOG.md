@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.1.2] - 2025-12-09
+
+### Fixed
+- **Tailwind v4 styling issue**: Converted all `bg-[var(--color-*)]` arbitrary value syntax to proper Tailwind v4 utility classes like `bg-surface`, `text-text-primary`, etc.
+- In Tailwind v4, when you define `--color-surface` in `@theme`, it creates `bg-surface` utility class automatically
+- All components now use native Tailwind v4 color utilities instead of CSS variable arbitrary values
+
+### Changed
+- Updated all UI components (Button, Card, Input, Header, Navigation)
+- Updated all trading components (AssetSelector, MarketOrderForm, PositionsView)
+- Updated all funding components (DepositFlow, BalanceDisplay)
+- Updated all page layouts and routes
+
 ## [0.1.1] - 2025-12-09
 
 ### Changed

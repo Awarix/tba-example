@@ -43,7 +43,7 @@ export function AssetSelector({
   if (isLoading) {
     return (
       <div className="animate-pulse">
-        <div className="h-12 bg-[var(--color-border)] rounded-lg" />
+        <div className="h-12 bg-border rounded-lg" />
       </div>
     );
   }
@@ -53,20 +53,20 @@ export function AssetSelector({
       {/* Selected asset display / trigger */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between p-3 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg hover:border-[var(--color-accent)] transition-colors"
+        className="w-full flex items-center justify-between p-3 bg-surface border border-border rounded-lg hover:border-accent transition-colors"
       >
         <div className="flex items-center gap-3">
-          <span className="text-xl font-semibold text-[var(--color-text-primary)]">
+          <span className="text-xl font-semibold text-text-primary">
             {selectedAsset ?? "Select Asset"}
           </span>
           {currentPrice && (
-            <span className="text-lg font-mono text-[var(--color-text-secondary)]">
+            <span className="text-lg font-mono text-text-secondary">
               ${formatPrice(currentPrice)}
             </span>
           )}
         </div>
         <svg
-          className={`w-5 h-5 text-[var(--color-text-muted)] transition-transform ${isOpen ? "rotate-180" : ""}`}
+          className={`w-5 h-5 text-text-muted transition-transform ${isOpen ? "rotate-180" : ""}`}
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -82,26 +82,26 @@ export function AssetSelector({
 
       {/* Dropdown */}
       {isOpen && (
-        <div className="absolute z-50 w-full mt-2 bg-[var(--color-surface-elevated)] border border-[var(--color-border)] rounded-lg shadow-xl overflow-hidden">
+        <div className="absolute z-50 w-full mt-2 bg-surface-elevated border border-border rounded-lg shadow-xl overflow-hidden">
           {/* Search */}
-          <div className="p-2 border-b border-[var(--color-border)]">
+          <div className="p-2 border-b border-border">
             <input
               type="text"
               placeholder="Search assets..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full px-3 py-2 bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] focus:outline-none focus:border-[var(--color-accent)]"
+              className="w-full px-3 py-2 bg-background border border-border rounded-lg text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent"
               autoFocus
             />
           </div>
 
           {/* Market type tabs */}
-          <div className="flex border-b border-[var(--color-border)]">
+          <div className="flex border-b border-border">
             <button
               className={`flex-1 px-4 py-2 text-sm font-medium ${
                 marketType === "perp"
-                  ? "text-[var(--color-accent)] border-b-2 border-[var(--color-accent)]"
-                  : "text-[var(--color-text-muted)]"
+                  ? "text-accent border-b-2 border-accent"
+                  : "text-text-muted"
               }`}
               disabled
             >
@@ -110,8 +110,8 @@ export function AssetSelector({
             <button
               className={`flex-1 px-4 py-2 text-sm font-medium ${
                 marketType === "spot"
-                  ? "text-[var(--color-accent)] border-b-2 border-[var(--color-accent)]"
-                  : "text-[var(--color-text-muted)]"
+                  ? "text-accent border-b-2 border-accent"
+                  : "text-text-muted"
               }`}
               disabled
             >
@@ -133,17 +133,17 @@ export function AssetSelector({
                     setIsOpen(false);
                     setSearch("");
                   }}
-                  className={`w-full flex items-center justify-between px-4 py-3 hover:bg-[var(--color-surface)] transition-colors ${
-                    isSelected ? "bg-[var(--color-accent)]/10" : ""
+                  className={`w-full flex items-center justify-between px-4 py-3 hover:bg-surface transition-colors ${
+                    isSelected ? "bg-accent/10" : ""
                   }`}
                 >
                   <span
-                    className={`font-medium ${isSelected ? "text-[var(--color-accent)]" : "text-[var(--color-text-primary)]"}`}
+                    className={`font-medium ${isSelected ? "text-accent" : "text-text-primary"}`}
                   >
                     {asset.name}
                   </span>
                   {price && (
-                    <span className="font-mono text-[var(--color-text-secondary)]">
+                    <span className="font-mono text-text-secondary">
                       ${formatPrice(price)}
                     </span>
                   )}
@@ -152,7 +152,7 @@ export function AssetSelector({
             })}
 
             {filteredAssets.length === 0 && (
-              <div className="px-4 py-8 text-center text-[var(--color-text-muted)]">
+              <div className="px-4 py-8 text-center text-text-muted">
                 No assets found
               </div>
             )}

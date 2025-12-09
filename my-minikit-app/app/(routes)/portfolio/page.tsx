@@ -31,24 +31,20 @@ export default function PortfolioPage() {
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <p className="text-sm text-[var(--color-text-secondary)]">
-              Account Value
-            </p>
-            <p className="text-2xl font-mono font-bold text-[var(--color-text-primary)]">
+            <p className="text-sm text-text-secondary">Account Value</p>
+            <p className="text-2xl font-mono font-bold text-text-primary">
               {formatUsd(marginInfo.accountValue)}
             </p>
           </div>
           <div>
-            <p className="text-sm text-[var(--color-text-secondary)]">
-              Unrealized PnL
-            </p>
+            <p className="text-sm text-text-secondary">Unrealized PnL</p>
             <p
               className={`text-2xl font-mono font-bold ${
                 pnlFormatted.isPositive
-                  ? "text-[var(--color-long)]"
+                  ? "text-long"
                   : pnlFormatted.isNegative
-                    ? "text-[var(--color-short)]"
-                    : "text-[var(--color-text-primary)]"
+                    ? "text-short"
+                    : "text-text-primary"
               }`}
             >
               {pnlFormatted.value}
@@ -56,20 +52,16 @@ export default function PortfolioPage() {
           </div>
         </div>
 
-        <div className="mt-4 pt-4 border-t border-[var(--color-border)] grid grid-cols-2 gap-4">
+        <div className="mt-4 pt-4 border-t border-border grid grid-cols-2 gap-4">
           <div>
-            <p className="text-xs text-[var(--color-text-muted)]">
-              Margin Used
-            </p>
-            <p className="font-mono text-[var(--color-text-primary)]">
+            <p className="text-xs text-text-muted">Margin Used</p>
+            <p className="font-mono text-text-primary">
               {formatUsd(marginInfo.totalMarginUsed)}
             </p>
           </div>
           <div>
-            <p className="text-xs text-[var(--color-text-muted)]">
-              Available
-            </p>
-            <p className="font-mono text-[var(--color-text-primary)]">
+            <p className="text-xs text-text-muted">Available</p>
+            <p className="font-mono text-text-primary">
               {formatUsd(marginInfo.availableBalance)}
             </p>
           </div>

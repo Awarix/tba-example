@@ -11,9 +11,8 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(function Card(
   ref
 ) {
   const variants = {
-    default: "bg-[var(--color-surface)] border-[var(--color-border)]",
-    elevated:
-      "bg-[var(--color-surface-elevated)] border-[var(--color-border)]",
+    default: "bg-surface border-border",
+    elevated: "bg-surface-elevated border-border",
   };
 
   return (
@@ -50,7 +49,7 @@ export const CardTitle = forwardRef<HTMLHeadingElement, CardTitleProps>(
     return (
       <h3
         ref={ref}
-        className={`text-lg font-semibold text-[var(--color-text-primary)] ${className}`}
+        className={`text-lg font-semibold text-text-primary ${className}`}
         {...props}
       >
         {children}
@@ -58,4 +57,3 @@ export const CardTitle = forwardRef<HTMLHeadingElement, CardTitleProps>(
     );
   }
 );
-

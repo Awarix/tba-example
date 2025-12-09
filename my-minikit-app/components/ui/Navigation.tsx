@@ -13,7 +13,7 @@ export function Navigation() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-[var(--color-surface)] border-t border-[var(--color-border)] safe-area-inset-bottom">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-surface border-t border-border safe-area-inset-bottom">
       <div className="max-w-lg mx-auto flex items-center justify-around py-2">
         {navItems.map((item) => {
           const isActive = pathname === item.href;
@@ -24,8 +24,8 @@ export function Navigation() {
               href={item.href}
               className={`flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-colors ${
                 isActive
-                  ? "text-[var(--color-accent)]"
-                  : "text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]"
+                  ? "text-accent"
+                  : "text-text-muted hover:text-text-secondary"
               }`}
             >
               <span className="text-xl">{item.icon}</span>
@@ -37,4 +37,3 @@ export function Navigation() {
     </nav>
   );
 }
-

@@ -33,8 +33,8 @@ export function BalanceDisplay() {
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
             <div key={i} className="animate-pulse">
-              <div className="h-4 bg-[var(--color-border)] rounded w-24 mb-1" />
-              <div className="h-6 bg-[var(--color-border)] rounded w-32" />
+              <div className="h-4 bg-border rounded w-24 mb-1" />
+              <div className="h-6 bg-border rounded w-32" />
             </div>
           ))}
         </div>
@@ -51,10 +51,8 @@ export function BalanceDisplay() {
         {/* Base USDC */}
         <div className="flex justify-between items-center">
           <div>
-            <p className="text-sm text-[var(--color-text-secondary)]">
-              Base USDC
-            </p>
-            <p className="text-lg font-mono text-[var(--color-text-primary)]">
+            <p className="text-sm text-text-secondary">Base USDC</p>
+            <p className="text-lg font-mono text-text-primary">
               {formatUsd(balances?.baseUsdc ?? "0")}
             </p>
           </div>
@@ -64,10 +62,8 @@ export function BalanceDisplay() {
         {/* HyperEVM USDHL */}
         <div className="flex justify-between items-center">
           <div>
-            <p className="text-sm text-[var(--color-text-secondary)]">
-              HyperEVM USDHL
-            </p>
-            <p className="text-lg font-mono text-[var(--color-text-primary)]">
+            <p className="text-sm text-text-secondary">HyperEVM USDHL</p>
+            <p className="text-lg font-mono text-text-primary">
               {formatUsd(balances?.hyperEvmUsdhl ?? "0")}
             </p>
           </div>
@@ -78,16 +74,14 @@ export function BalanceDisplay() {
         </div>
 
         {/* HL Trading Margin */}
-        <div className="flex justify-between items-center pt-3 border-t border-[var(--color-border)]">
+        <div className="flex justify-between items-center pt-3 border-t border-border">
           <div>
-            <p className="text-sm text-[var(--color-text-secondary)]">
-              HL Trading Margin
-            </p>
-            <p className="text-xl font-mono font-semibold text-[var(--color-text-primary)]">
+            <p className="text-sm text-text-secondary">HL Trading Margin</p>
+            <p className="text-xl font-mono font-semibold text-text-primary">
               {formatUsd(hlPerpMargin)}
             </p>
           </div>
-          <div className="px-2 py-0.5 rounded bg-[var(--color-accent)] text-xs font-medium">
+          <div className="px-2 py-0.5 rounded bg-accent text-xs font-medium">
             READY
           </div>
         </div>
@@ -95,4 +89,3 @@ export function BalanceDisplay() {
     </Card>
   );
 }
-

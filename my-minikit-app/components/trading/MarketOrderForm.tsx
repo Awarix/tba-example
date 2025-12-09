@@ -80,9 +80,7 @@ export function MarketOrderForm({ selectedAsset }: MarketOrderFormProps) {
       });
 
       if (result.success) {
-        setSuccess(
-          `Order placed! ID: ${result.orderId?.slice(0, 8)}...`
-        );
+        setSuccess(`Order placed! ID: ${result.orderId?.slice(0, 8)}...`);
         setSizeInput("");
       }
     } catch (err) {
@@ -105,8 +103,8 @@ export function MarketOrderForm({ selectedAsset }: MarketOrderFormProps) {
 
       {/* Builder fee approval prompt */}
       {needsBuilderApproval && (
-        <div className="mb-4 p-3 rounded-lg bg-[var(--color-warning)]/10 border border-[var(--color-warning)]">
-          <p className="text-sm text-[var(--color-warning)] mb-2">
+        <div className="mb-4 p-3 rounded-lg bg-warning/10 border border-warning">
+          <p className="text-sm text-warning mb-2">
             One-time builder fee approval required to trade through this app.
           </p>
           <Button
@@ -122,11 +120,9 @@ export function MarketOrderForm({ selectedAsset }: MarketOrderFormProps) {
 
       {/* Current price */}
       {selectedAsset && currentPrice && (
-        <div className="mb-4 p-3 rounded-lg bg-[var(--color-background)]">
-          <p className="text-sm text-[var(--color-text-secondary)]">
-            {selectedAsset} Price
-          </p>
-          <p className="text-2xl font-mono font-semibold text-[var(--color-text-primary)]">
+        <div className="mb-4 p-3 rounded-lg bg-background">
+          <p className="text-sm text-text-secondary">{selectedAsset} Price</p>
+          <p className="text-2xl font-mono font-semibold text-text-primary">
             ${formatPrice(currentPrice)}
           </p>
         </div>
@@ -138,8 +134,8 @@ export function MarketOrderForm({ selectedAsset }: MarketOrderFormProps) {
           onClick={() => setSide("buy")}
           className={`flex-1 py-3 rounded-lg font-semibold transition-all ${
             side === "buy"
-              ? "bg-[var(--color-long)] text-[var(--color-background)]"
-              : "bg-[var(--color-surface-elevated)] text-[var(--color-text-secondary)] hover:text-[var(--color-long)]"
+              ? "bg-long text-background"
+              : "bg-surface-elevated text-text-secondary hover:text-long"
           }`}
         >
           Long
@@ -148,8 +144,8 @@ export function MarketOrderForm({ selectedAsset }: MarketOrderFormProps) {
           onClick={() => setSide("sell")}
           className={`flex-1 py-3 rounded-lg font-semibold transition-all ${
             side === "sell"
-              ? "bg-[var(--color-short)] text-white"
-              : "bg-[var(--color-surface-elevated)] text-[var(--color-text-secondary)] hover:text-[var(--color-short)]"
+              ? "bg-short text-white"
+              : "bg-surface-elevated text-text-secondary hover:text-short"
           }`}
         >
           Short
@@ -170,7 +166,7 @@ export function MarketOrderForm({ selectedAsset }: MarketOrderFormProps) {
 
       {/* Leverage selector */}
       <div className="mb-4">
-        <label className="text-sm text-[var(--color-text-secondary)] block mb-2">
+        <label className="text-sm text-text-secondary block mb-2">
           Leverage
         </label>
         <div className="flex gap-2">
@@ -180,8 +176,8 @@ export function MarketOrderForm({ selectedAsset }: MarketOrderFormProps) {
               onClick={() => setLeverage(lev)}
               className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
                 leverage === lev
-                  ? "bg-[var(--color-accent)] text-white"
-                  : "bg-[var(--color-surface-elevated)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
+                  ? "bg-accent text-white"
+                  : "bg-surface-elevated text-text-secondary hover:text-text-primary"
               }`}
             >
               {lev}x
@@ -191,26 +187,22 @@ export function MarketOrderForm({ selectedAsset }: MarketOrderFormProps) {
       </div>
 
       {/* Order summary */}
-      <div className="mb-4 p-3 rounded-lg bg-[var(--color-background)] space-y-2">
+      <div className="mb-4 p-3 rounded-lg bg-background space-y-2">
         <div className="flex justify-between text-sm">
-          <span className="text-[var(--color-text-secondary)]">
-            Est. Value
-          </span>
-          <span className="font-mono text-[var(--color-text-primary)]">
+          <span className="text-text-secondary">Est. Value</span>
+          <span className="font-mono text-text-primary">
             {formatUsd(estimatedValue)}
           </span>
         </div>
         <div className="flex justify-between text-sm">
-          <span className="text-[var(--color-text-secondary)]">
-            Margin Required
-          </span>
-          <span className="font-mono text-[var(--color-text-primary)]">
+          <span className="text-text-secondary">Margin Required</span>
+          <span className="font-mono text-text-primary">
             {formatUsd(marginRequired)}
           </span>
         </div>
         <div className="flex justify-between text-sm">
-          <span className="text-[var(--color-text-secondary)]">Available</span>
-          <span className="font-mono text-[var(--color-text-primary)]">
+          <span className="text-text-secondary">Available</span>
+          <span className="font-mono text-text-primary">
             {formatUsd(availableMargin)}
           </span>
         </div>
@@ -218,12 +210,12 @@ export function MarketOrderForm({ selectedAsset }: MarketOrderFormProps) {
 
       {/* Error/Success messages */}
       {error && (
-        <div className="mb-4 p-3 rounded-lg bg-[var(--color-error)]/10 text-[var(--color-error)] text-sm">
+        <div className="mb-4 p-3 rounded-lg bg-error/10 text-error text-sm">
           {error}
         </div>
       )}
       {success && (
-        <div className="mb-4 p-3 rounded-lg bg-[var(--color-success)]/10 text-[var(--color-success)] text-sm">
+        <div className="mb-4 p-3 rounded-lg bg-success/10 text-success text-sm">
           {success}
         </div>
       )}
@@ -247,11 +239,10 @@ export function MarketOrderForm({ selectedAsset }: MarketOrderFormProps) {
 
       {/* Builder fee notice */}
       {builderConfigured && (
-        <p className="mt-3 text-xs text-center text-[var(--color-text-muted)]">
+        <p className="mt-3 text-xs text-center text-text-muted">
           Builder fee applies to all trades
         </p>
       )}
     </Card>
   );
 }
-

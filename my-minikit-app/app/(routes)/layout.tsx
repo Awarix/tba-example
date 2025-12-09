@@ -7,11 +7,10 @@ export default function RoutesLayout({
   children: React.ReactNode;
 }): React.ReactElement {
   return (
-    <div className="min-h-screen bg-[var(--color-background)]">
+    <div className="min-h-screen bg-background">
       <Header />
       <main className="pb-safe">{children}</main>
       <Navigation />
     </div>
   );
 }
-
