@@ -17,7 +17,7 @@ const nextConfig: NextConfig = {
           },
           {
             key: "Content-Security-Policy",
-            value: "frame-ancestors 'self' https://*.farcaster.xyz https://*.warpcast.com https://base.org https://*.base.org *;",
+            value: "frame-ancestors 'self' https://*.farcaster.xyz https://*.warpcast.com https://base.org https://*.base.org https://*.base.dev https://base.dev;",
           },
         ],
       },
