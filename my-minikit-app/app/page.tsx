@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import Image from "next/image";
 import { Wallet } from "@coinbase/onchainkit/wallet";
 import {
@@ -45,8 +45,6 @@ const USDC: Token = {
 };
 
 export default function Home() {
-  const [activeTest, setActiveTest] = useState<string | null>(null);
-
   // MiniKit core hook - setFrameReady signals the host app we're ready
   const { setFrameReady, isFrameReady, context } = useMiniKit();
 
@@ -132,10 +130,13 @@ export default function Home() {
                     {context.user.displayName || "N/A"}
                   </p>
                   {context.user.pfpUrl && (
-                    <img
+                    <Image
                       src={context.user.pfpUrl}
                       alt="Profile"
+                      width={48}
+                      height={48}
                       className={styles.avatar}
+                      unoptimized
                     />
                   )}
                 </div>
