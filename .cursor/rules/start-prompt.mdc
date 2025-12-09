@@ -1,0 +1,49 @@
+---
+alwaysApply: true
+---
+# Agent Instructions
+
+Building a **Hyperliquid trading Mini App** for Base App / Farcaster.
+
+## Tech Stack
+
+Next.js 15 (App Router) | TypeScript 5 | Tailwind 4 (oklch only) | RTK Query | Drizzle | Neon | @coinbase/onchainkit (MiniKit) | @nktkas/hyperliquid | Neynar | Vercel
+
+## Type Rules
+
+- **NO** `any`, `as any`, `@ts-ignore`, `@ts-expect-error`
+- **YES** explicit return types, Zod for external data, `unknown` + type guards
+- Run `tsc --noEmit` — zero errors required
+
+## Documentation
+
+| File | Purpose |
+|------|---------|
+| [PROJECT.md](mdc:PROJECT.md) | Core spec, architecture, data model |
+| [CONTEXT.md](mdc:CONTEXT.md) | Current state, in-progress, issues |
+| [CHANGELOG.md](mdc:CHANGELOG.md) | History of changes |
+
+**External Docs:** [MiniKit](https://docs.base.org/mini-apps) | [@nktkas/hyperliquid](https://nktkas.gitbook.io/hyperliquid) | [Neynar](https://docs.neynar.com) | [Drizzle](https://orm.drizzle.team/docs/overview)
+
+## Principles
+
+1. **Ask When Uncertain** — Consult user before architectural decisions
+2. **Step-by-Step** — Create plan, implement incrementally
+3. **One Feature** — Complete fully before starting another
+4. **Simplicity** — Straightforward solutions, consistent with existing code
+
+## Key Constraints
+
+- FID ≠ Wallet (one user can have different wallets in Base App vs Farcaster)
+- No private key export (signing via MiniKit only)
+- Builder fee on all Hyperliquid trades
+- oklch() colors only
+
+## After Completing Work
+
+1. **Update CONTEXT.md** — Move to completed, add a concise summary of the work done. Document any new rules, constraints, important implementation details, or known issues arising 
+    from the change.
+2. **Update CHANGELOG.md** — Add entry with date (Added/Changed/Fixed/Removed)
+3. **Keep files under 700 lines** — Summarize older entries if needed
+
+**When in doubt, always ask.**

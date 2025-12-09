@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Inter, Source_Code_Pro } from "next/font/google";
 import { SafeArea } from "@coinbase/onchainkit/minikit";
 import { minikitConfig } from "@/minikit.config";
 import { RootProvider } from "./rootProvider";
@@ -25,25 +24,22 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-});
-
-const sourceCodePro = Source_Code_Pro({
-  variable: "--font-source-code-pro",
-  subsets: ["latin"],
-});
-
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
-}>) {
+}>): React.ReactElement {
   return (
     <RootProvider>
       <html lang="en">
-        <body className={`${inter.variable} ${sourceCodePro.variable}`}>
+        <head>
+          {/* OnchainKit styles loaded via link to bypass Tailwind 4 PostCSS */}
+          <link
+            rel="stylesheet"
+            href="https://unpkg.com/@coinbase/onchainkit@latest/dist/assets/style.css"
+          />
+        </head>
+        <body>
           <SafeArea>{children}</SafeArea>
         </body>
       </html>
