@@ -73,22 +73,95 @@ None - Phase 2A complete, ready for testing.
 3. **SDK Type Inference**: The `@nktkas/hyperliquid` SDK incorrectly types some responses; we use type assertions.
 4. **Trade History**: Not yet connected to actual API (mock data in component).
 5. **Open Orders Count**: Badge in TradeTabs not connected to actual query.
+6. **Chart Colors**: lightweight-charts canvas doesn't support oklch colors - must use hex/rgba.
 
 ## Key Implementation Details
 
+### Order Sheet Design (Bybit Mobile Style)
+The order form follows Bybit's professional mobile trading interface:
+- **Compact Layout**: Smaller gaps (`gap-2`, `gap-3`), padding (`py-2`, `py-2.5`), and font sizes (`text-xs`, `text-sm`)
+- **No Redundancy**: Removed mark price (visible on chart), TP/SL inputs, Est. Value, and Margin Required
+- **Key Elements**:
+  - Buy/Long and Sell/Short toggle at top (green/red)
+  - Market/Limit/Settings buttons (stop orders hidden in settings)
+  - Input blocks with `bg-surface-elevated` rounded backgrounds
+  - Horizontal leverage bar (1x-50x)
+  - Available balance display (green text)
+  - Large Buy/Sell button at bottom (full-width, rounded, prominent)
+
 ### Lightweight Charts v5 API
-The chart uses the new v5 API with series definitions:
+The chart uses the new v5 API with series definitions. **Important**: Canvas rendering doesn't support oklch colors - use hex/rgba.
+
+**React Ref Pattern:** Uses callback ref (`setContainerElement`) instead of `useRef` to ensure chart initializes after DOM element is mounted. This solves timing issues with dynamic imports (`ssr: false`).
+
+**Event Handler Memory Management:** Click handlers must use `useRef` to store function reference. The `lightweight-charts` library requires the EXACT same function reference for both `subscribeClick` and `unsubscribeClick`. Without a ref, each effect run creates a new function, causing old listeners to accumulate and creating a memory leak where multiple handlers fire on each click.
+
+**Preserving Zoom/Scroll Position:** Critical for UX - chart must NOT reset user's position on data updates:
+- Use `series.setData()` when candle count changes (new candles added) or on initial load
+- Use `series.update()` for real-time updates to existing candles (prevents full re-render)
+- Only call `fitContent()` on initial load, not on subsequent updates
+- Track initial load state with `isInitialLoadRef` and candle count with `previousCandlesLengthRef`
+- Reset initial load flag when coin/interval changes
+- This prevents the chart from losing scroll position during WebSocket updates
+
+**Scaling Configuration:** Match TradingView's scaling behavior:
+- `rightOffset: 12` - space on right side
+- `barSpacing: 6` - default spacing between candles
+- `minBarSpacing: 0.5` - minimum when zoomed in
+- `fixLeftEdge: false`, `fixRightEdge: false` - allow scrolling beyond data
+- Price scale: `top: 0.1, bottom: 0.25` margins
+- Volume: uses bottom 20% of chart (`scaleMargins: { top: 0.8, bottom: 0 }`)
 
 ```typescript
 import { CandlestickSeries, HistogramSeries } from "lightweight-charts";
 
-// Create series with v5 API
-const candleSeries = chart.addSeries(CandlestickSeries, {
-  upColor: "oklch(0.72 0.22 145)",
-  downColor: "oklch(0.65 0.24 25)",
+// Use callback ref to get container element
+const [containerElement, setContainerElement] = useState<HTMLDivElement | null>(null);
+const isInitialLoadRef = useRef(true);
+const previousCandlesLengthRef = useRef(0);
+
+// Initialize chart when container is available
+useEffect(() => {
+  if (!containerElement) return;
+  const chart = createChart(containerElement, {
+    timeScale: {
+      rightOffset: 12,
+      barSpacing: 6,
+      minBarSpacing: 0.5,
+      fixLeftEdge: false,
+      fixRightEdge: false,
+    },
+  });
   // ...
-});
+}, [containerElement]);
+
+// Update data without resetting position
+useEffect(() => {
+  const hasNewCandles = candles.length !== previousCandlesLengthRef.current;
+  
+  if (isInitialLoadRef.current || hasNewCandles) {
+    // Use setData() when new candles are added
+    series.setData(allCandles);
+    
+    if (isInitialLoadRef.current) {
+      chart.timeScale().fitContent();
+      isInitialLoadRef.current = false;
+    }
+  } else {
+    // Use update() for real-time updates to preserve scroll
+    series.update(lastCandle);
+  }
+  
+  previousCandlesLengthRef.current = candles.length;
+}, [candles]);
+
+// Reset on coin/interval change
+useEffect(() => {
+  isInitialLoadRef.current = true;
+}, [coin, interval]);
 ```
+
+Reference: [lightweight-charts API docs](https://tradingview.github.io/lightweight-charts/docs)
 
 ### Candle Data WebSocket
 Real-time candle updates via RTK Query streaming:

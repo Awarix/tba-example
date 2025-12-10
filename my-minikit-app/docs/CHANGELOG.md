@@ -1,5 +1,97 @@
 # Changelog
 
+## [0.2.3] - 2025-12-10
+
+### Changed
+- **Order Sheet Redesign** (Bybit mobile app style)
+  - Removed mark price display (user sees it on chart above)
+  - Redesigned Buy/Long and Sell/Short toggle with cleaner styling
+  - Created Bybit-style input blocks for Limit Price and Size with rounded backgrounds
+  - Moved stop orders to settings icon (visual indicator only)
+  - Removed TP/SL, Est. Value, and Margin Required displays
+  - Added Available HL USD balance display (green text)
+  - Added large Buy/Sell button at bottom (full-width, rounded)
+  - Redesigned leverage selector as horizontal bar (1x, 5x, 10x, 28x, 50x)
+  - Improved spacing and sizing to match Bybit's compact mobile layout
+  - Smaller gaps, padding, and font sizes for professional appearance
+
+### Fixed
+- **Chart Click Handler Duplicate**: Removed duplicate chart click subscription that caused `onPriceClick` to fire twice
+  - Click handler was subscribed in both initialization effect and dedicated click effect
+  - Kept only the dedicated effect which properly handles callback updates
+- **Order Sheet Price Sync**: Re-added parent callback sync for price changes
+  - `onPriceChange` callback now properly called when user changes price
+  - Parent state stays in sync when user manually changes prices
+- **Limit Order Validation**: Added validation to prevent submitting limit orders without a price
+  - Shows error message: "Please enter a valid limit price"
+  - Prevents API errors from empty price submissions
+- **Chart Data Display on Scroll**: Fixed empty chart when scaling timeline beyond default range
+  - Use `setData()` only when new candles are added (length changes) or on initial load
+  - Use `update()` for real-time updates to existing candles to prevent full re-renders
+  - Prevents chart from losing scroll position on WebSocket updates
+  - Only `fitContent()` is called on initial load to preserve zoom/scroll
+- **TP/SL Persistence**: Removed effects that cleared TP/SL values on order sheet open
+  - TP/SL values set via chart dragging now persist when opening order form
+  - Order sheet no longer interferes with chart-based TP/SL management
+- **Volume Price Scale Display**: Hidden volume price scale labels from chart
+  - Configured volume series to use hidden left price scale (`priceScaleId: "left"`)
+  - Added `leftPriceScale: { visible: false }` to chart configuration
+  - Removed confusing volume numbers appearing on right side
+  - Volume histogram still visible but without distracting price labels
+  - Only candlestick price scale now shown, matching professional trading interfaces
+- **Wallet Connection Pre-flight**: Restored wallet connection check for order form access
+  - Long/Short buttons disabled until wallet is connected
+  - Prevents users from accessing order form in invalid state
+- **Chart Click Handler Memory Leak**: Fixed event listener accumulation causing multiple callbacks
+  - Used `useRef` to store click handler function reference for proper unsubscribe
+  - Ensures old event listeners are removed before adding new ones
+  - Prevents memory leak where multiple handlers fire on each chart click
+  - `lightweight-charts` requires exact same function reference for subscribe/unsubscribe
+
+## [0.2.2] - 2025-12-10
+
+### Changed
+- **Order Sheet UX Improvements** (Bybit-style professional layout)
+  - Added Buy/Sell toggle buttons at top of order sheet (green/red highlighting)
+  - Users can now switch between Long/Short without closing the sheet
+  - Changed default order type to "limit" when price is clicked on chart
+  - Price input auto-fills when clicking on chart or order book
+  - Improved header: Shows "{COIN} Perpetual" instead of "Long/Short {COIN}"
+  - Form auto-resets when sheet closes
+
+- **Improved Crosshair Visibility**
+  - Increased crosshair opacity from 0.5 to 0.8 for better visibility
+  - Added explicit width and style properties for solid lines
+  - Price and time labels always visible on crosshair
+
+### Fixed
+- **Chart Price Click Handling**: Fixed price input to update immediately when initialPrice prop changes
+  - Price now captured correctly when clicking on chart
+  - Auto-switches to limit order when price is set via chart click
+  - Order sheet responds to price changes in real-time
+
+## [0.2.1] - 2025-12-10
+
+### Fixed
+- **Candlestick Chart Not Displaying**: Fixed React ref timing issue where chart container wasn't ready during initialization
+  - Changed from `useRef` to callback ref pattern (`setContainerElement` state)
+  - Chart initialization effect now depends on `containerElement` state
+  - Ensures chart initializes only after DOM element is actually mounted
+  - Solves timing issues with Next.js dynamic imports (`ssr: false`)
+
+- **Chart Zoom/Scroll Position Resets**: Fixed chart resetting user's zoom/scroll position on every WebSocket update
+  - Use `update()` method for real-time candle updates instead of `setData()`
+  - Only call `fitContent()` on initial load, not on subsequent updates
+  - Preserve user's manual zoom/scroll when new data arrives
+  - Track initial load state per coin/interval combination
+
+- **Chart Scaling Improvements**: Better default scaling to match TradingView behavior
+  - Increased `rightOffset` to 12 for more space on right side
+  - Set `barSpacing` to 6 with `minBarSpacing` of 0.5 for proper zoom range
+  - Enabled `fixLeftEdge: false` and `fixRightEdge: false` for better scrolling
+  - Improved price scale margins (10% top, 25% bottom for volume)
+  - Volume series uses bottom 20% of chart height
+
 ## [0.2.0] - 2025-12-09
 
 ### Added

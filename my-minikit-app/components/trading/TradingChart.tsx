@@ -53,7 +53,6 @@ export function TradingChart({
   onTakeProfitDrag,
   onStopLossDrag,
 }: TradingChartProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const candleSeriesRef = useRef<ISeriesApi<"Candlestick"> | null>(null);
   const volumeSeriesRef = useRef<ISeriesApi<"Histogram"> | null>(null);
@@ -62,47 +61,69 @@ export function TradingChart({
   const entryLineRef = useRef<ReturnType<ISeriesApi<"Candlestick">["createPriceLine"]> | null>(null);
   const tpLineRef = useRef<ReturnType<ISeriesApi<"Candlestick">["createPriceLine"]> | null>(null);
   const slLineRef = useRef<ReturnType<ISeriesApi<"Candlestick">["createPriceLine"]> | null>(null);
+  const clickHandlerRef = useRef<((param: { point?: { x: number; y: number } }) => void) | null>(null);
 
   const [isDragging, setIsDragging] = useState<"tp" | "sl" | null>(null);
+  const [containerElement, setContainerElement] = useState<HTMLDivElement | null>(null);
 
   // Fetch candle data
   const { data: candles, isLoading } = useCandleSnapshotQuery({ coin, interval });
 
   // Initialize chart
   useEffect(() => {
-    if (!containerRef.current) return;
+    if (!containerElement) return;
 
-    const chart = createChart(containerRef.current, {
+    // Avoid re-initializing if already initialized
+    if (chartRef.current) return;
+
+    // Note: lightweight-charts canvas doesn't support oklch colors
+    // Using hex equivalents of our oklch theme colors
+    const chart = createChart(containerElement, {
       layout: {
         background: { color: "transparent" },
-        textColor: "oklch(0.70 0.02 260)",
+        textColor: "#9ca3af", // text-secondary equivalent
       },
       grid: {
-        vertLines: { color: "oklch(0.22 0.02 260 / 0.5)" },
-        horzLines: { color: "oklch(0.22 0.02 260 / 0.5)" },
+        vertLines: { color: "rgba(55, 65, 81, 0.5)" }, // surface-elevated with opacity
+        horzLines: { color: "rgba(55, 65, 81, 0.5)" },
       },
       crosshair: {
         mode: CrosshairMode.Normal,
         vertLine: {
-          color: "oklch(0.70 0.18 280 / 0.5)",
-          labelBackgroundColor: "oklch(0.70 0.18 280)",
+          color: "rgba(139, 92, 246, 0.8)", // accent with more opacity
+          labelBackgroundColor: "#8b5cf6", // accent
+          width: 1,
+          style: 0, // Solid line
+          labelVisible: true,
         },
         horzLine: {
-          color: "oklch(0.70 0.18 280 / 0.5)",
-          labelBackgroundColor: "oklch(0.70 0.18 280)",
+          color: "rgba(139, 92, 246, 0.8)",
+          labelBackgroundColor: "#8b5cf6",
+          width: 1,
+          style: 0, // Solid line
+          labelVisible: true,
         },
       },
       rightPriceScale: {
-        borderColor: "oklch(0.22 0.02 260)",
+        borderColor: "#374151", // surface-elevated
         scaleMargins: {
-          top: 0.1,
-          bottom: 0.2,
+          top: 0.1, // 10% margin at top
+          bottom: 0.25, // 25% margin at bottom for volume
         },
+        autoScale: true, // Auto-scale to fit visible data
+      },
+      leftPriceScale: {
+        visible: false, // Hide left scale (used for volume)
       },
       timeScale: {
-        borderColor: "oklch(0.22 0.02 260)",
+        borderColor: "#374151",
         timeVisible: true,
         secondsVisible: false,
+        rightOffset: 12, // More space on the right like TradingView
+        barSpacing: 6, // Spacing between bars
+        minBarSpacing: 0.5, // Minimum spacing when zoomed in
+        fixLeftEdge: false, // Allow scrolling past the first bar
+        fixRightEdge: false, // Allow scrolling past the last bar
       },
       handleScroll: {
         vertTouchDrag: false, // Allow vertical scroll on mobile
@@ -110,26 +131,27 @@ export function TradingChart({
     });
 
     // Create candlestick series using v5 API
+    // Using hex colors: green (#22c55e) for up, red (#ef4444) for down
     const candleSeries = chart.addSeries(CandlestickSeries, {
-      upColor: "oklch(0.72 0.22 145)",
-      downColor: "oklch(0.65 0.24 25)",
-      borderUpColor: "oklch(0.72 0.22 145)",
-      borderDownColor: "oklch(0.65 0.24 25)",
-      wickUpColor: "oklch(0.72 0.22 145)",
-      wickDownColor: "oklch(0.65 0.24 25)",
+      upColor: "#22c55e",
+      downColor: "#ef4444",
+      borderUpColor: "#22c55e",
+      borderDownColor: "#ef4444",
+      wickUpColor: "#22c55e",
+      wickDownColor: "#ef4444",
     });
 
     // Create volume series using v5 API
     const volumeSeries = chart.addSeries(HistogramSeries, {
-      color: "oklch(0.70 0.18 280 / 0.3)",
+      color: "rgba(139, 92, 246, 0.3)", // accent with opacity
       priceFormat: {
         type: "volume",
       },
-      priceScaleId: "volume",
+      priceScaleId: "left", // Use hidden left scale for volume
     });
     volumeSeries.priceScale().applyOptions({
       scaleMargins: {
-        top: 0.85,
+        top: 0.8, // Volume takes bottom 20% of chart
         bottom: 0,
       },
     });
@@ -138,22 +160,12 @@ export function TradingChart({
     candleSeriesRef.current = candleSeries;
     volumeSeriesRef.current = volumeSeries;
 
-    // Handle click for price selection
-    chart.subscribeClick((param) => {
-      if (param.point && onPriceClick && candleSeriesRef.current) {
-        const price = candleSeriesRef.current.coordinateToPrice(param.point.y);
-        if (price !== null) {
-          onPriceClick(price);
-        }
-      }
-    });
-
     // Handle resize
     const handleResize = () => {
-      if (containerRef.current && chartRef.current) {
+      if (containerElement && chartRef.current) {
         chartRef.current.applyOptions({
-          width: containerRef.current.clientWidth,
-          height: containerRef.current.clientHeight,
+          width: containerElement.clientWidth,
+          height: containerElement.clientHeight,
         });
       }
     };
@@ -168,30 +180,101 @@ export function TradingChart({
       candleSeriesRef.current = null;
       volumeSeriesRef.current = null;
     };
+  }, [containerElement]); // Re-run when container element is set
+
+  // Update click handler when onPriceClick changes
+  useEffect(() => {
+    if (!chartRef.current || !candleSeriesRef.current) return;
+
+    // Remove previous handler if it exists
+    if (clickHandlerRef.current && chartRef.current) {
+      chartRef.current.unsubscribeClick(clickHandlerRef.current);
+    }
+
+    // Create new handler with updated callback
+    const handleClick = (param: { point?: { x: number; y: number } }) => {
+      if (param.point && onPriceClick && candleSeriesRef.current) {
+        const price = candleSeriesRef.current.coordinateToPrice(param.point.y);
+        if (price !== null) {
+          onPriceClick(price);
+        }
+      }
+    };
+
+    // Store reference and subscribe
+    clickHandlerRef.current = handleClick;
+    chartRef.current.subscribeClick(handleClick);
+
+    return () => {
+      // Unsubscribe using the stored reference
+      if (clickHandlerRef.current && chartRef.current) {
+        chartRef.current.unsubscribeClick(clickHandlerRef.current);
+        clickHandlerRef.current = null;
+      }
+    };
   }, [onPriceClick]);
+
+  // Track if this is initial data load
+  const isInitialLoadRef = useRef(true);
+  const previousCandlesLengthRef = useRef(0);
 
   // Update chart data
   useEffect(() => {
-    if (!candles || !candleSeriesRef.current || !volumeSeriesRef.current) return;
+    if (!candles || candles.length === 0 || !candleSeriesRef.current || !volumeSeriesRef.current) {
+      return;
+    }
 
-    const chartCandles = candles.map(toChartCandle);
-    const volumeData = candles.map((c) => ({
+    // Sort candles by timestamp ascending (required by lightweight-charts)
+    const sortedCandles = [...candles].sort((a, b) => a.t - b.t);
+    
+    const chartCandles = sortedCandles.map(toChartCandle);
+    const volumeData = sortedCandles.map((c) => ({
       time: (c.t / 1000) as Time,
       value: parseFloat(c.v),
       color:
         parseFloat(c.c) >= parseFloat(c.o)
-          ? "oklch(0.72 0.22 145 / 0.5)"
-          : "oklch(0.65 0.24 25 / 0.5)",
+          ? "rgba(34, 197, 94, 0.5)" // green with opacity
+          : "rgba(239, 68, 68, 0.5)", // red with opacity
     }));
 
-    candleSeriesRef.current.setData(chartCandles);
-    volumeSeriesRef.current.setData(volumeData);
-
-    // Auto-fit content
-    if (chartRef.current) {
-      chartRef.current.timeScale().fitContent();
+    try {
+      const isInitial = isInitialLoadRef.current || previousCandlesLengthRef.current === 0;
+      const hasNewCandles = sortedCandles.length !== previousCandlesLengthRef.current;
+      
+      if (isInitial || hasNewCandles) {
+        // Use setData() when we have new candles or on initial load
+        candleSeriesRef.current.setData(chartCandles);
+        volumeSeriesRef.current.setData(volumeData);
+        
+        // Only fit content on initial load
+        if (isInitialLoadRef.current) {
+          if (chartRef.current) {
+            chartRef.current.timeScale().fitContent();
+          }
+          isInitialLoadRef.current = false;
+        }
+      } else {
+        // Use update() for real-time updates to existing candles
+        const lastCandle = chartCandles[chartCandles.length - 1];
+        const lastVolume = volumeData[volumeData.length - 1];
+        
+        if (lastCandle && lastVolume) {
+          candleSeriesRef.current.update(lastCandle);
+          volumeSeriesRef.current.update(lastVolume);
+        }
+      }
+      
+      previousCandlesLengthRef.current = sortedCandles.length;
+    } catch (err) {
+      console.error("Error setting chart data:", err);
     }
   }, [candles]);
+
+  // Reset initial load flag when coin or interval changes
+  useEffect(() => {
+    isInitialLoadRef.current = true;
+    previousCandlesLengthRef.current = 0;
+  }, [coin, interval]);
 
   // Manage price lines
   const updatePriceLine = useCallback(
@@ -225,7 +308,7 @@ export function TradingChart({
   // Update entry price line
   useEffect(() => {
     updatePriceLine(entryLineRef, entryPrice, {
-      color: "oklch(0.70 0.18 280)",
+      color: "#8b5cf6", // accent purple
       title: "Entry",
     });
   }, [entryPrice, updatePriceLine]);
@@ -233,7 +316,7 @@ export function TradingChart({
   // Update take profit line
   useEffect(() => {
     updatePriceLine(tpLineRef, takeProfitPrice, {
-      color: "oklch(0.72 0.22 145)",
+      color: "#22c55e", // green
       title: "TP",
       lineStyle: LineStyle.Dotted,
     });
@@ -242,7 +325,7 @@ export function TradingChart({
   // Update stop loss line
   useEffect(() => {
     updatePriceLine(slLineRef, stopLossPrice, {
-      color: "oklch(0.65 0.24 25)",
+      color: "#ef4444", // red
       title: "SL",
       lineStyle: LineStyle.Dotted,
     });
@@ -275,9 +358,9 @@ export function TradingChart({
   // Handle mouse/touch events for dragging
   const handlePointerDown = useCallback(
     (e: React.PointerEvent) => {
-      if (!candleSeriesRef.current || !containerRef.current) return;
+      if (!candleSeriesRef.current || !containerElement) return;
 
-      const rect = containerRef.current.getBoundingClientRect();
+      const rect = containerElement.getBoundingClientRect();
       const y = e.clientY - rect.top;
       const price = candleSeriesRef.current.coordinateToPrice(y);
       if (price === null) return;
@@ -299,25 +382,31 @@ export function TradingChart({
         }
       }
     },
-    [takeProfitPrice, stopLossPrice]
+    [containerElement, takeProfitPrice, stopLossPrice]
   );
 
   const handlePointerUp = useCallback(() => {
     setIsDragging(null);
   }, []);
 
-  if (isLoading) {
+  if (isLoading || !candles || candles.length === 0) {
     return (
-      <div className="w-full h-full flex items-center justify-center bg-surface rounded-lg">
-        <div className="animate-spin h-8 w-8 border-2 border-accent border-t-transparent rounded-full" />
+      <div className="w-full h-full flex items-center justify-center bg-surface rounded-lg min-h-[300px]">
+        <div className="text-center">
+          <div className="animate-spin h-8 w-8 border-2 border-accent border-t-transparent rounded-full mx-auto mb-2" />
+          <p className="text-xs text-text-muted">
+            {isLoading ? "Loading chart..." : "No data available"}
+          </p>
+        </div>
       </div>
     );
   }
 
   return (
     <div
-      ref={containerRef}
+      ref={setContainerElement}
       className="w-full h-full min-h-[300px] touch-pan-y"
+      style={{ position: "relative" }}
       onPointerDown={handlePointerDown}
       onPointerUp={handlePointerUp}
       onPointerLeave={handlePointerUp}
